@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vps-chrome-proxy"
+version = "1.0.0"
+description = "Anti-leak proxy-isolated Chrome browsers and dual-track gateways (VLESS + Residential) on Linux VPS / LXC."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "arifulcrypto", email = "ariful160798@gmail.com"}
+]
+keywords = ["vps", "lxc", "xrdp", "xfce4", "chrome", "proxy", "xray", "vless", "anti-leak", "webrtc"]
+dependencies = [
+    "paramiko>=3.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/arifulcrypto/vps-chrome-proxy"
+Repository = "https://github.com/arifulcrypto/vps-chrome-proxy"

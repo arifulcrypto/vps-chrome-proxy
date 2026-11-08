@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Dynamic Residential / Datacenter Proxy Switcher
+# Local Bridge Port: {LOCAL_BRIDGE_PORT}
+# Managed via systemd-run unit: {BRIDGE_SERVICE_NAME}
+# ==============================================================================
+
+PROXIES=(
+{PROXIES_ARRAY}
+)
+
+INDEX=${1:-1}
+if [[ "$INDEX" -lt 1 || "$INDEX" -gt ${#PROXIES[@]} ]]; then
+  echo "Usage: $0 <number>"
+  echo "Available Proxies:"
+  for i in "${!PROXIES[@]}"; do
+    num=$((i+1))
+    IFS='|' read -r raw info <<< "${PROXIES[$i]}"
+    echo "  [$num] $info"
+  done
+  exit 1
+fi
+
+SELECTED="${PROXIES[$((INDEX-1))]}"
+IFS='|' read -r RAW INFO <<< "$SELECTED"
+
+# Normalize delimiter
+RAW_CLEAN="${RAW//#/:}"
+IFS=':' read -r IP PORT USER PASS <<< "$RAW_CLEAN"
+
+echo "Switching local bridge to [$INDEX]: $INFO..."
+systemctl stop {BRIDGE_SERVICE_NAME} 2>/dev/null || true
+systemctl reset-failed {BRIDGE_SERVICE_NAME} 2>/dev/null || true
+
+# Check pproxy binary
+PPROXY_BIN="$(which pproxy 2>/dev/null || echo '/root/miniconda3/bin/pproxy')"
+if [ ! -x "$PPROXY_BIN" ]; then
+  echo "Error: pproxy binary not found. Please install via pip: pip install pproxy"
+  exit 1
+fi
+
+systemd-run --unit={BRIDGE_SERVICE_NAME} "$PPROXY_BIN" -l http://127.0.0.1:{LOCAL_BRIDGE_PORT} -r "http://$IP:$PORT#$USER:$PASS"
+sleep 1.5
+
+CURRENT_IP=$(curl -s --max-time 6 -x http://127.0.0.1:{LOCAL_BRIDGE_PORT} https://api.ipify.org || echo "Connection Failed")
+echo "Success! Current Proxy Exit IP: $CURRENT_IP"

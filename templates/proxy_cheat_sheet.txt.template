@@ -1,0 +1,50 @@
+================================================================================
+                    PROXY & CHROME ENVIRONMENT CHEAT SHEET
+================================================================================
+Host Target: {TARGET_HOST}
+Deployment Date: {DEPLOY_DATE}
+
+--------------------------------------------------------------------------------
+1. CURRENT PROXY STATUS & EXIT IPS
+--------------------------------------------------------------------------------
+* Native Machine IP:     {NATIVE_IP}
+* Active Proxy Exit IP:  {ACTIVE_PROXY_IP} (Country: {ACTIVE_COUNTRY})
+* HTTP Proxy Port:       http://127.0.0.1:{HTTP_PORT}
+* SOCKS5 Proxy Port:     socks5h://127.0.0.1:{SOCKS_PORT}
+
+--------------------------------------------------------------------------------
+2. TERMINAL ON-DEMAND PROXY COMMANDS (Copy & Paste)
+--------------------------------------------------------------------------------
+[ENABLE PROXY in Current Terminal]:
+  export http_proxy=http://127.0.0.1:{HTTP_PORT}
+  export https_proxy=http://127.0.0.1:{HTTP_PORT}
+  export all_proxy=http://127.0.0.1:{HTTP_PORT}
+
+[TEST CURRENT IP]:
+  curl https://api.ipify.org
+  # Expected output: {ACTIVE_PROXY_IP}
+
+[DISABLE PROXY in Current Terminal]:
+  unset http_proxy https_proxy all_proxy
+
+--------------------------------------------------------------------------------
+3. ISOLATED CHROME INSTANCES
+--------------------------------------------------------------------------------
+{CHROME_INSTANCES_LIST}
+
+--------------------------------------------------------------------------------
+4. SERVICE MANAGEMENT COMMANDS
+--------------------------------------------------------------------------------
+* Check Status:  systemctl status {SERVICE_NAME}
+* Restart Proxy: systemctl restart {SERVICE_NAME}
+* Stop Proxy:    systemctl stop {SERVICE_NAME}
+* View Logs:     journalctl -u {SERVICE_NAME} -n 30 --no-pager
+
+--------------------------------------------------------------------------------
+5. ANTI-LEAK HARDENING VERIFICATION
+--------------------------------------------------------------------------------
+* QUIC (UDP 443): Disabled via --disable-quic
+* WebRTC IP Leak: Restricted via --force-webrtc-ip-handling-policy=disable_non_proxied_udp
+* DNS Leak:       Resolved remotely via HTTP CONNECT / --disable-features=DnsOverHttps
+* Root Sandbox:   Safely adapted with --no-sandbox and --disable-dev-shm-usage
+================================================================================

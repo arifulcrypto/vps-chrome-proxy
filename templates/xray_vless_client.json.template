@@ -1,0 +1,59 @@
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "inbounds": [
+    {
+      "tag": "http-in",
+      "listen": "{LISTEN_ADDR}",
+      "port": {HTTP_PORT},
+      "protocol": "http",
+      "settings": {
+        "timeout": 300
+      }
+    },
+    {
+      "tag": "socks-in",
+      "listen": "{LISTEN_ADDR}",
+      "port": {SOCKS_PORT},
+      "protocol": "socks",
+      "settings": {
+        "auth": "noauth",
+        "udp": true
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "proxy-out",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "{REMOTE_HOST}",
+            "port": {REMOTE_PORT},
+            "users": [
+              {
+                "id": "{UUID}",
+                "encryption": "none",
+                "flow": "{FLOW}"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "{NETWORK}",
+        "security": "{SECURITY}",
+        "realitySettings": {
+          "show": false,
+          "fingerprint": "{FINGERPRINT}",
+          "serverName": "{SERVER_NAME}",
+          "publicKey": "{PUBLIC_KEY}",
+          "shortId": "{SHORT_ID}",
+          "spiderX": ""
+        }
+      }
+    }
+  ]
+}

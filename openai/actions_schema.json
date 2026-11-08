@@ -1,0 +1,43 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "VPS Chrome Proxy API",
+    "description": "API Schema for automating anti-leak Chrome and multi-track proxies on Linux hosts",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://localhost"
+    }
+  ],
+  "paths": {
+    "/provision": {
+      "post": {
+        "summary": "Deploy proxy and isolated Chrome instance",
+        "operationId": "provisionChromeProxy",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "target_host": {"type": "string", "default": "localhost"},
+                  "vless_url": {"type": "string"},
+                  "chrome_name": {"type": "string", "default": "US Proxy Chrome"},
+                  "http_port": {"type": "integer", "default": 2080}
+                },
+                "required": ["vless_url"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Provisioning successful with exit IP report"
+          }
+        }
+      }
+    }
+  }
+}

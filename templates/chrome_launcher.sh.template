@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# {INSTANCE_NAME} - Isolated Anti-Leak Proxy Launcher
+# Profile Dir: {USER_DATA_DIR}
+# Proxy Target: {PROXY_URL}
+# Anti-Leak: QUIC Disabled, WebRTC Restricted, Local DoH Disabled, en-US UI
+# ==============================================================================
+
+# Ensure proxy service is active if systemd service is specified
+SERVICE_NAME="{SERVICE_NAME}"
+if [ -n "$SERVICE_NAME" ]; then
+  if ! systemctl is-active --quiet "$SERVICE_NAME"; then
+    systemctl start "$SERVICE_NAME" 2>/dev/null || true
+  fi
+fi
+
+# X11 Display bindings
+export DISPLAY=${DISPLAY:-:10}
+export XAUTHORITY=${XAUTHORITY:-/root/.Xauthority}
+
+# Language preference
+export LANG=${LANG:-en_US.UTF-8}
+export LC_ALL=${LC_ALL:-en_US.UTF-8}
+
+# Ensure isolated user data directory exists
+USER_DATA_DIR="{USER_DATA_DIR}"
+mkdir -p "$USER_DATA_DIR"
+
+# Target URLs
+DEFAULT_URLS=({DEFAULT_URLS})
+if [ $# -gt 0 ]; then
+  TARGET_URLS=("$@")
+else
+  TARGET_URLS=("${DEFAULT_URLS[@]}")
+fi
+
+setsid /usr/bin/google-chrome-stable \
+  --no-sandbox \
+  --disable-dev-shm-usage \
+  --no-first-run \
+  --no-default-browser-check \
+  --user-data-dir="$USER_DATA_DIR" \
+  --class="{WM_CLASS}" \
+  --lang=en-US \
+  --proxy-server="{PROXY_URL}" \
+  --proxy-bypass-list="127.0.0.1,localhost" \
+  --disable-quic \
+  --force-webrtc-ip-handling-policy=disable_non_proxied_udp \
+  --enforce-webrtc-ip-permission-check \
+  --disable-features=DnsOverHttps \
+  "${TARGET_URLS[@]}" </dev/null >/dev/null 2>&1 &
