@@ -468,10 +468,10 @@ class VPSChromeProxyManager:
         for inst in chrome_instances:
             instances_formatted.append(
                 f"* [{inst['name']}]\n"
-                f"  - Launcher: {inst['launcher']}\n"
-                f"  - Desktop:  {inst['desktop']}\n"
-                f"  - Profile:  {inst['profile']}\n"
-                f"  - Proxy:    {inst['proxy']}"
+                f"  - 启动脚本: {inst['launcher']}\n"
+                f"  - 桌面图标: {inst['desktop']}\n"
+                f"  - 独立目录: {inst['profile']}\n"
+                f"  - 代理配置: {inst['proxy']}"
             )
         instances_str = "\n".join(instances_formatted)
 

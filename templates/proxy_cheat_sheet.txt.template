@@ -1,50 +1,101 @@
 ================================================================================
-                    PROXY & CHROME ENVIRONMENT CHEAT SHEET
+                    VPS 代理网关与独立 Chrome 终端使用备忘单
 ================================================================================
-Host Target: {TARGET_HOST}
-Deployment Date: {DEPLOY_DATE}
+目标主机: {TARGET_HOST}
+部署与更新时间: {DEPLOY_DATE}
 
 --------------------------------------------------------------------------------
-1. CURRENT PROXY STATUS & EXIT IPS
+一、 当前本地代理网关与出口 IP 状态
 --------------------------------------------------------------------------------
-* Native Machine IP:     {NATIVE_IP}
-* Active Proxy Exit IP:  {ACTIVE_PROXY_IP} (Country: {ACTIVE_COUNTRY})
-* HTTP Proxy Port:       http://127.0.0.1:{HTTP_PORT}
-* SOCKS5 Proxy Port:     socks5h://127.0.0.1:{SOCKS_PORT}
+* 原生宿主机 IP:   {NATIVE_IP}
+* 【专线 A - {HTTP_PORT}】:  {ACTIVE_PROXY_IP} (归属地: {ACTIVE_COUNTRY})
+  - 本地 HTTP 代理:  http://127.0.0.1:{HTTP_PORT}
+  - 本地 SOCKS5 代理: socks5h://127.0.0.1:{SOCKS_PORT}
+  - 核心适用场景:    延迟极低、固定 IP、会话持久，专供 Claude Code、Codex、Git、终端开发
+* 【住宅 B - 18080】: 动态住宅家庭宽带 (当前已切: 菲律宾 PLDT / Globe 等 11 国)
+  - 本地 HTTP 代理:  http://127.0.0.1:18080
+  - 核心适用场景:    高纯净度住宅宽带、按需轮询切 IP，专供浏览器账号注册、风控支付、业务订阅
 
 --------------------------------------------------------------------------------
-2. TERMINAL ON-DEMAND PROXY COMMANDS (Copy & Paste)
+二、 终端按需开启与关闭代理 (复制即可直接执行)
 --------------------------------------------------------------------------------
-[ENABLE PROXY in Current Terminal]:
+【方案 1：开启美国专线代理 (推荐日常编程与自动化使用)】:
   export http_proxy=http://127.0.0.1:{HTTP_PORT}
   export https_proxy=http://127.0.0.1:{HTTP_PORT}
   export all_proxy=http://127.0.0.1:{HTTP_PORT}
 
-[TEST CURRENT IP]:
+  测试出口 IP:
   curl https://api.ipify.org
-  # Expected output: {ACTIVE_PROXY_IP}
+  # 预期输出: {ACTIVE_PROXY_IP}
 
-[DISABLE PROXY in Current Terminal]:
+【方案 2：开启菲律宾/多国动态住宅代理 (按需临时使用)】:
+  export http_proxy=http://127.0.0.1:18080
+  export https_proxy=http://127.0.0.1:18080
+  export all_proxy=http://127.0.0.1:18080
+
+  测试出口 IP (务必附加 -m 10 超时控制):
+  curl -m 10 https://api.ipify.org
+  # 提示: 动态家庭宽带偶发遇到慢节点死等，测试请带 -m 10，卡住按 Ctrl+C 中断重试即可换 IP。
+
+【方案 3：关闭代理 (恢复原生网络)】:
   unset http_proxy https_proxy all_proxy
 
+  测试出口 IP:
+  curl https://api.ipify.org
+  # 预期输出: {NATIVE_IP}
+
 --------------------------------------------------------------------------------
-3. ISOLATED CHROME INSTANCES
+三、 独立 Chrome 浏览器实例与桌面入口
 --------------------------------------------------------------------------------
 {CHROME_INSTANCES_LIST}
 
 --------------------------------------------------------------------------------
-4. SERVICE MANAGEMENT COMMANDS
+四、 如何更换/替换节点链接与配置
 --------------------------------------------------------------------------------
-* Check Status:  systemctl status {SERVICE_NAME}
-* Restart Proxy: systemctl restart {SERVICE_NAME}
-* Stop Proxy:    systemctl stop {SERVICE_NAME}
-* View Logs:     journalctl -u {SERVICE_NAME} -n 30 --no-pager
+【如何替换 VLESS 专线链接】:
+  方式 1 (最简单 - 通过 Skill 脚本重新生成):
+    python3 scripts/vps_chrome_proxy.py \
+      --add-vless "新的vless://链接..." \
+      --http-port {HTTP_PORT} \
+      --socks-port {SOCKS_PORT}
+
+  方式 2 (直接编辑现有 Xray 配置文件):
+    1) 编辑配置文件:
+       nano /etc/xray-client-us/config.json
+       (修改 outbounds 中的 address 远端IP、port 端口、id UUID、publicKey 公钥等)
+    2) 重启服务生效:
+       systemctl restart {SERVICE_NAME}
+    3) 验证新出口:
+       curl -x http://127.0.0.1:{HTTP_PORT} https://api.ipify.org
+
+【如何替换/切换住宅代理 (Socks/HTTP 代理池)】:
+  方式 1 (快捷切换预置的多国住宅地区):
+    直接执行桌面切换脚本:
+    /root/Desktop/switch_proxy.sh
+    (输入数字快速切换: 1=菲律宾, 2=英国, 3=西班牙, 4=美国洛杉矶, 5=新泽西... 等)
+
+  方式 2 (修改或新增自定义住宅/机房代理上游):
+    1) 编辑脚本:
+       nano /root/Desktop/switch_proxy.sh
+       在 PROXIES 列表中替换或追加新的节点 (格式为 "IP:端口:账号:密码|节点名称备注"):
+       "geo.ipcook.com:32345:user:pass|菲律宾原生住宅"
+    2) 重新执行并切到该节点:
+       /root/Desktop/switch_proxy.sh <序号>
 
 --------------------------------------------------------------------------------
-5. ANTI-LEAK HARDENING VERIFICATION
+五、 核心服务管理指令
 --------------------------------------------------------------------------------
-* QUIC (UDP 443): Disabled via --disable-quic
-* WebRTC IP Leak: Restricted via --force-webrtc-ip-handling-policy=disable_non_proxied_udp
-* DNS Leak:       Resolved remotely via HTTP CONNECT / --disable-features=DnsOverHttps
-* Root Sandbox:   Safely adapted with --no-sandbox and --disable-dev-shm-usage
+* 查看 Xray 专线状态:   systemctl status {SERVICE_NAME}
+* 重启 Xray 专线服务:   systemctl restart {SERVICE_NAME}
+* 查看住宅代理桥状态:   systemctl status proxy-bridge.service
+* 重启住宅代理桥服务:   systemctl restart proxy-bridge.service
+* 查看实时运行日志:     journalctl -u {SERVICE_NAME} -n 30 --no-pager
+
+--------------------------------------------------------------------------------
+六、 防泄漏参数说明
+--------------------------------------------------------------------------------
+* 禁用 QUIC (UDP 443): 浏览器启动参数已注入 --disable-quic，防止 UDP 旁路直连
+* 严格阻断 WebRTC 泄露: 注入 --force-webrtc-ip-handling-policy=disable_non_proxied_udp
+* 杜绝本地 DNS 泄露:   通过 HTTP CONNECT 交由代理远端节点解析，注入 --disable-features=DnsOverHttps
+* Root 沙箱安全适配:   注入 --no-sandbox 与 --disable-dev-shm-usage，保障 XRDP 桌面渲染稳定
 ================================================================================
