@@ -26,7 +26,7 @@ description: >-
   - 独立 `.desktop` 桌面图标与启动脚本。
 - **全方位防泄漏参数加固**：
   - `--disable-quic`：封锁 UDP 443 旁路直连，杜绝代理绕过；
-  - `--force-webrtc-ip-handling-policy=disable_non_proxied_udp` 与 `--enforce-webrtc-ip-permission-check`：彻底封堵 WebRTC STUN 泄露真实本机 IP；
+  - `--webrtc-ip-handling-policy=disable_non_proxied_udp`、Enterprise 策略与 STUN 防火墙阻断：彻底封堵 WebRTC STUN 泄露真实本机 IP；
   - `--disable-features=DnsOverHttps`：关闭本地 DoH，强制由远端节点解析 DNS；
   - `--lang=en-US`：原生英文界面与环境；
   - `--no-sandbox --disable-dev-shm-usage`：适配 root 身份及 XRDP 渲染环境。

@@ -8,6 +8,6 @@
 2. **自动化执行**：
    调用 `scripts/vps_chrome_proxy.py` 执行标准任务，绝不手动修改系统内核路由表或开启 TUN 网卡，保障 XRDP 和 SSH 连接 100% 稳定。
 3. **防泄漏加固**：
-   确保 Chrome 实例强制注入 `--disable-quic`、`--force-webrtc-ip-handling-policy=disable_non_proxied_udp`、`--disable-features=DnsOverHttps` 以及 `--no-sandbox` 参数。
+   确保 Chrome 实例强制注入 `--disable-quic`、`--webrtc-ip-handling-policy=disable_non_proxied_udp`、`--disable-features=DnsOverHttps` 以及 `--no-sandbox` 参数。
 4. **即查即用指南**：
    引导用户使用 `cat /root/Desktop/PROXY_CHEAT_SHEET.txt` 随时查阅当前出口 IP 与终端代理控制指令。

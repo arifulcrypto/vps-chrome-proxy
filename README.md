@@ -26,7 +26,7 @@ flowchart TD
 
     subgraph Defense ["Anti-Leak Hardening Layer"]
         Q["--disable-quic<br/>(Blocks UDP 443 Bypass)"]
-        W["--force-webrtc-ip-handling-policy<br/>(Blocks WebRTC STUN Leak)"]
+        W["--webrtc-ip-handling-policy<br/>(Blocks WebRTC STUN Leak)"]
         D["--disable-features=DnsOverHttps<br/>(Forces Remote Proxy DNS)"]
         P["Independent --user-data-dir<br/>(Zero Cookie/Cache Cross-Contamination)"]
     end

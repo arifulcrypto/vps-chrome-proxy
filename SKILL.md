@@ -28,7 +28,7 @@ description: >-
   - Independent desktop `.desktop` entries and `.sh` launchers.
 - **Hardened Anti-Leak Flags**:
   - `--disable-quic`: Stops HTTP/3 UDP 443 proxy bypass.
-  - `--force-webrtc-ip-handling-policy=disable_non_proxied_udp` & `--enforce-webrtc-ip-permission-check`: Blocks WebRTC STUN requests from exposing host real IP.
+  - `--webrtc-ip-handling-policy=disable_non_proxied_udp` & Enterprise Policy `/etc/opt/chrome/policies/managed/webrtc_policy.json`: Blocks WebRTC STUN requests from exposing host real IP.
   - `--disable-features=DnsOverHttps`: Forces remote DNS resolution via HTTP CONNECT.
   - `--lang=en-US`: Enforces native English browser locale.
   - `--no-sandbox --disable-dev-shm-usage`: Ensures root execution and XRDP desktop stability.

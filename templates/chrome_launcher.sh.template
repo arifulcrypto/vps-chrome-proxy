@@ -45,7 +45,7 @@ setsid /usr/bin/google-chrome-stable \
   --proxy-server="{PROXY_URL}" \
   --proxy-bypass-list="127.0.0.1,localhost" \
   --disable-quic \
-  --force-webrtc-ip-handling-policy=disable_non_proxied_udp \
+  --webrtc-ip-handling-policy=disable_non_proxied_udp \
   --enforce-webrtc-ip-permission-check \
   --disable-features=DnsOverHttps \
   "${TARGET_URLS[@]}" </dev/null >/dev/null 2>&1 &

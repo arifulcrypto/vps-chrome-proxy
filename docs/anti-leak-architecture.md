@@ -15,7 +15,9 @@ This document explains why standard proxies frequently leak sensitive real IP ad
 * **Mechanism**: WebRTC is designed for peer-to-peer real-time communication. To facilitate NAT traversal, the WebRTC engine sends STUN packets over UDP to discover all available public and private IP addresses.
 * **The Leak**: Even with `--proxy-server` enabled, WebRTC by default attempts STUN discovery across all active interfaces. Target websites (OpenAI, Claude, payment processors) execute JavaScript STUN queries to unmask the real server IP.
 * **Our Defense**:
-  * `--force-webrtc-ip-handling-policy=disable_non_proxied_udp` restricts WebRTC to only use UDP routes that traverse the proxy.
+  * `--webrtc-ip-handling-policy=disable_non_proxied_udp` restricts WebRTC to only use UDP routes that traverse the proxy.
+  * System Enterprise Policy `/etc/opt/chrome/policies/managed/webrtc_policy.json` (`{"WebRtcIPHandlingPolicy": "disable_non_proxied_udp"}`) permanently enforces this rule across all profiles and windows.
+  * Kernel-level firewall: `iptables -I OUTPUT -p udp -m multiport --dports 3478,5349,19302 -j REJECT` drops direct STUN UDP probe packets.
   * `--enforce-webrtc-ip-permission-check` mandates explicit browser permission before binding interfaces.
 
 ### Vector C: Local DNS Over HTTPS (DoH) Leak

@@ -95,7 +95,7 @@
 六、 防泄漏参数说明
 --------------------------------------------------------------------------------
 * 禁用 QUIC (UDP 443): 浏览器启动参数已注入 --disable-quic，防止 UDP 旁路直连
-* 严格阻断 WebRTC 泄露: 注入 --force-webrtc-ip-handling-policy=disable_non_proxied_udp
+* 严格阻断 WebRTC 泄露: 注入 --webrtc-ip-handling-policy=disable_non_proxied_udp 与企业策略 /etc/opt/chrome/policies/managed/webrtc_policy.json
 * 杜绝本地 DNS 泄露:   通过 HTTP CONNECT 交由代理远端节点解析，注入 --disable-features=DnsOverHttps
 * Root 沙箱安全适配:   注入 --no-sandbox 与 --disable-dev-shm-usage，保障 XRDP 桌面渲染稳定
 ================================================================================

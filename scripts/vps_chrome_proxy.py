@@ -408,6 +408,18 @@ class VPSChromeProxyManager:
         self.ex.write_file(desktop_entry_path, desktop_content, mode="0755")
         logger.info(f"Chrome instance '{name}' configured. Desktop entry: {desktop_entry_path}")
 
+        # Deploy Enterprise Policy for WebRTC non-proxied UDP restriction
+        policy_dir = "/etc/opt/chrome/policies/managed"
+        self.ex.run(f"mkdir -p {policy_dir}")
+        policy_content = json.dumps({"WebRtcIPHandlingPolicy": "disable_non_proxied_udp"}, indent=2)
+        self.ex.write_file(f"{policy_dir}/webrtc_policy.json", policy_content, mode="0644")
+
+        # Kernel-level STUN packet drop to prevent WebRTC leaks
+        self.ex.run(
+            "iptables -C OUTPUT -p udp -m multiport --dports 3478,5349,19302 -j REJECT 2>/dev/null || "
+            "iptables -I OUTPUT -p udp -m multiport --dports 3478,5349,19302 -j REJECT || true"
+        )
+
     def test_leak_and_status(self, proxy_port: int = 2080) -> dict:
         """Perform automated leak verification (DNS, WebRTC, QUIC, AI connectivity)."""
         logger.info("Executing leak test and connectivity suite...")
@@ -425,7 +437,7 @@ class VPSChromeProxyManager:
         chrome_ip_cmd = (
             "google-chrome-stable --headless=new --no-sandbox --disable-dev-shm-usage "
             f'--proxy-server="http://127.0.0.1:{proxy_port}" --disable-quic '
-            "--force-webrtc-ip-handling-policy=disable_non_proxied_udp --enforce-webrtc-ip-permission-check "
+            "--webrtc-ip-handling-policy=disable_non_proxied_udp --enforce-webrtc-ip-permission-check "
             '--dump-dom "https://api.ipify.org" 2>/dev/null | grep -oE "([0-9]{1,3}\\.){3}[0-9]{1,3}" | head -n 1 || echo "Failed"'
         )
         chrome_ip = self.ex.run(chrome_ip_cmd)
